@@ -1,4 +1,5 @@
 let translate = document.getElementById("translate");
+let remove = document.getElementById("remove");
 translate.addEventListener("click", async () => {
   let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   chrome.scripting.executeScript({
@@ -7,8 +8,7 @@ translate.addEventListener("click", async () => {
   });
 });
 
-let remove = document.getElementById("remove");
-translate.addEventListener("click", async () => {
+remove.addEventListener("click", async () => {
   let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   chrome.scripting.executeScript({
     target: { tabId: tab.id },
@@ -17,17 +17,21 @@ translate.addEventListener("click", async () => {
 });
 
 async function REMOVE() {
-
- /*
-  let stroka = Array.from(document.querySelectorAll("ytgn-video-translation-row"));
-  document.document.querySelector("#metadata-actions-menu > tp-yt-iron-icon").click();
-  await delay(300);
-  document.querySelector("#text-item-1").click();
-  document.querySelector("#metadata-actions-menu > tp-yt-iron-icon")
-  */
-
-  alert ('ti lox');
+ 
+ 
+ let strokka = Array.from(document.querySelectorAll("ytgn-video-translation-row"));
+  for (let k = strokka.length; k > 0 ; k--) {
+  async function delay(ms) {
+    return new Promise((res) => setTimeout(res, ms));
   }
+  document.querySelector("#metadata-actions-menu > tp-yt-iron-icon").click();
+  await delay(200);
+   document.querySelector("#text-item-1").click();
+   await delay(200);
+   document.querySelectorAll("#confirm-button")[k-1].click();
+   await delay(200);
+ }
+    }
 
 async function SUBTITLES() {
 
@@ -38,13 +42,13 @@ async function SUBTITLES() {
   var origdescription = document.querySelectorAll("#textbox");
   document.querySelector("#menu-paper-icon-item-4 > div.nav-item-text.style-scope.ytcp-navigation-drawer").click();
   await delay(300);
-
-  var original = document.querySelector("#entity-name").textContent.trim() + '1488' + origdescription[1].textContent.trim();
-
+  var re = /1337/;
+  var original = document.querySelector("#entity-name").textContent.trim() + re + origdescription[1].textContent.trim();
+  
   document.getElementById("add-translations-button").click();
   //var elements = document.getElementsByClassName("tp-yt-paper-item  style-scope ytcp-text-menu style-scope ytcp-text-menu");
 
-  var cifri = [4, 7, 12, 16, 21, 40, 41, 42, 53, 58, 59, 60, 67, 68, 72, 86, 88, 93, 94, 95, 100, 105, 109, 111, 113, 115, 133, 140, 143, 144, 149, 174, 182, 188, 195];
+  var cifri = [4, 29, 203, 134, 7, 12, 16, 21, 40, 41, 42, 58, 59, 60, 67, 68, 72, 86, 88, 93, 94, 95, 100, 105, 109, 111, 113, 115, 133, 140, 143, 144, 149, 174, 182, 188, 195];
 
 
   var codes = [];
@@ -101,7 +105,7 @@ async function SUBTITLES() {
     
   })
 
-  await delay(2000);
+  await delay(2400);
 
   // const data = JSON.stringify(massiv);
   // const xhr = new XMLHttpRequest();
@@ -122,25 +126,32 @@ async function SUBTITLES() {
 
   //console.log(stroka);
 
-  var re = /1488/;
+  function truncate(str, n) {
+    //TODO: make it normal
+    
+  return (str.length > n) ? str.substr(0, n-1 )+'…' : str;
+}
+  
   for (let i = 0; i < stroka.length ; i++) {
     await delay(300);
     let row = findRowForLanguage(langes[i]);
     await delay(300);
     row.querySelector("ytgn-video-translation-cell-metadata #add-translation").click();
-    await delay(300);
+    await delay(400);
     let title = document.querySelectorAll("#translated-title > div > textarea");
     let descript = document.querySelectorAll("#translated-description > div > textarea");
     let public = document.querySelectorAll("#publish-button");
 
-    pereveden[i].then((value) => {title[i].value = value[0].translations[0].text.split(re)[0];})
-    await delay(400);
+    pereveden[i].then((value) => {title[i].value = truncate(value[0].translations[0].text.split(re)[0].replace(/[/]/g,''), 100)})
+
+    //str.replace(/[a-zа-яё]/gi, '');
+    await delay(500);
     title[i].dispatchEvent(event);
-    await delay(300);
-    pereveden[i].then((value) => {descript[i].value = value[0].translations[0].text.split(re)[1];})
     await delay(400);
+    pereveden[i].then((value) => {descript[i].value = value[0].translations[0].text.split(re)[1].replace(/[/]/g,'');})
+    await delay(500);
     descript[i].dispatchEvent(event);
-    await delay(300);
+    await delay(400);
     public[i].click();
     await delay(400);
   }

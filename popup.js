@@ -16,26 +16,69 @@ remove.addEventListener("click", async () => {
   });
 });
 
+document.querySelector('#all').checked = (localStorage.getItem('all') == "true");
+          document.querySelector('#all').addEventListener('change', (event) => {
+              if(document.querySelector('#all').checked) {
+                  Array.from(document.querySelectorAll('#languages input[type="checkbox"]')).forEach(checkbox=>{
+                      checkbox.checked=true;
+                      localStorage.setItem('all', true);
+                  })
+              } else {
+                  Array.from(document.querySelectorAll('#languages input[type="checkbox"]')).forEach(checkbox=>{
+                      checkbox.checked=false;
+                      localStorage.setItem('all', false);
+                  })
+              }})
+              Array.from(document.querySelectorAll('#languages input[type="checkbox"]')).forEach(checkbox => {
+                checkbox.addEventListener('change', (event) => {
+                    var checked = Array.from(document.querySelectorAll('#languages input[type="checkbox"]:checked'));
+                    var all = Array.from(document.querySelectorAll('#languages input[type="checkbox"]'));
+                    var selectedAll =(checked.length == all.length)
+                    document.querySelector('#all').checked = selectedAll;
+                    localStorage.setItem('all', selectedAll);
+                    
+                });
+          });
+
+var checkboxes = document.querySelectorAll("input[type=checkbox][name=settings]");
+var enabledSettings = []
+checkboxes.forEach(function(checkbox) {
+  checkbox.addEventListener('change', function() {
+    enabledSettings = 
+      Array.from(checkboxes) // Convert checkboxes to an array to use filter and map.
+      .filter(i => i.checked) // Use Array.filter to remove unchecked checkboxes.
+      .map(i => i.value) // Use Array.map to extract only the checkbox values from the array of objects.
+      chrome.storage.local.set({ myVariable: enabledSettings });
+    //alert(enabledSettings)
+    
+  })
+});
+
+
 async function REMOVE() {
- 
- 
- let strokka = Array.from(document.querySelectorAll("ytgn-video-translation-row"));
+  let strokka = Array.from(document.querySelectorAll("ytgn-video-translation-row"));
   for (let k = strokka.length; k > 0 ; k--) {
   async function delay(ms) {
     return new Promise((res) => setTimeout(res, ms));
   }
   document.querySelector("#metadata-actions-menu > tp-yt-iron-icon").click();
   await delay(200);
-   document.querySelector("#text-item-1").click();
+  document.querySelector("#text-item-1").click();
    await delay(200);
    document.querySelectorAll("#confirm-button")[k-1].click();
    await delay(200);
  }
     }
-
+var cifri;
 async function SUBTITLES() {
-
-  async function delay(ms) {
+  
+  chrome.storage.local.get(["myVariable"], ({ myVariable }) => {
+    cifri=myVariable;
+    console.log(myVariable);
+  });
+  await delay(1000);
+  
+   async function delay(ms) {
     return new Promise((res) => setTimeout(res, ms));
   }
 
@@ -48,9 +91,8 @@ async function SUBTITLES() {
   document.getElementById("add-translations-button").click();
   //var elements = document.getElementsByClassName("tp-yt-paper-item  style-scope ytcp-text-menu style-scope ytcp-text-menu");
 
-  var cifri = [4, 29, 203, 134, 7, 12, 16, 21, 40, 41, 42, 58, 59, 60, 67, 68, 72, 86, 88, 93, 94, 95, 100, 105, 109, 111, 113, 115, 133, 140, 143, 144, 149, 174, 182, 188, 195];
 
-
+await delay(300);
   var codes = [];
   var langes = [];
   await delay(300);
@@ -127,8 +169,7 @@ async function SUBTITLES() {
   //console.log(stroka);
 
   function truncate(str, n) {
-    //TODO: make it normal
-    
+        
   return (str.length > n) ? str.substr(0, n-1 )+'…' : str;
 }
   
@@ -144,7 +185,6 @@ async function SUBTITLES() {
 
     pereveden[i].then((value) => {title[i].value = truncate(value[0].translations[0].text.split(re)[0].replace(/[/]/g,''), 100)})
 
-    //str.replace(/[a-zа-яё]/gi, '');
     await delay(500);
     title[i].dispatchEvent(event);
     await delay(400);

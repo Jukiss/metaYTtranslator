@@ -15,7 +15,19 @@ remove.addEventListener("click", async () => {
     function: REMOVE,
   });
 });
+var memory;
+chrome.storage.local.get(["myVariable1"], ({ myVariable1 }) => {
+  memory=myVariable1;
+  memory.forEach(element => {
+   
+  });
+});
 
+chrome.storage.local.get(["API"], ({ API }) => {
+  document.querySelector("#languages > div:nth-child(1) > span > label > input[type=text]").value=API;
+  
+});
+/*
 document.querySelector('#all').checked = (localStorage.getItem('all') == "true");
           document.querySelector('#all').addEventListener('change', (event) => {
               if(document.querySelector('#all').checked) {
@@ -38,12 +50,33 @@ document.querySelector('#all').checked = (localStorage.getItem('all') == "true")
                     localStorage.setItem('all', selectedAll);
                     
                 });
-          });
-
+          });*/
+var vse=document.querySelector("#all");
+vse.addEventListener('click', function() {
+  if(document.querySelector("input[type=checkbox][name=settings]").checked==false){
+    for (var i = 0; i < (document.querySelectorAll("input[type=checkbox][name=settings]").length); i++) {
+    document.querySelectorAll("input[type=checkbox][name=settings]")[i].checked=true;
+   }
+  }
+  else{for (var i = 0; i < (document.querySelectorAll("input[type=checkbox][name=settings]").length); i++) {
+    document.querySelectorAll("input[type=checkbox][name=settings]")[i].checked=false;
+   }}
+})
+          var apikkey = document.querySelector("#languages > div:nth-child(1) > span > label > input[type=text]");        
+          var apikeystorage = []
+          apikkey.addEventListener('change', function() {
+            chrome.storage.local.set({ API: apikkey.value })
+                });
+          
 var checkboxes = document.querySelectorAll("input[type=checkbox][name=settings]");
 var enabledSettings = []
+var memento = []
 checkboxes.forEach(function(checkbox) {
   checkbox.addEventListener('change', function() {
+    memento=
+    Array.from(checkboxes) // Convert checkboxes to an array to use filter and map.
+    .filter(i => i.checked)
+    chrome.storage.local.set({ myVariable1: memento });
     enabledSettings = 
       Array.from(checkboxes) // Convert checkboxes to an array to use filter and map.
       .filter(i => i.checked) // Use Array.filter to remove unchecked checkboxes.
@@ -70,24 +103,33 @@ async function REMOVE() {
  }
     }
 var cifri;
+var apitoken;
 async function SUBTITLES() {
+  
+  chrome.storage.local.get(["API"], ({ API }) => {
+    apitoken=API;
+    
+  });
+  console.log(apitoken);
+  
   
   chrome.storage.local.get(["myVariable"], ({ myVariable }) => {
     cifri=myVariable;
     console.log(myVariable);
   });
-  await delay(1000);
+  
   
    async function delay(ms) {
     return new Promise((res) => setTimeout(res, ms));
   }
 
-  var origdescription = document.querySelectorAll("#textbox");
+  var orig = document.querySelectorAll("#textbox");
+  
   document.querySelector("#menu-paper-icon-item-4 > div.nav-item-text.style-scope.ytcp-navigation-drawer").click();
   await delay(300);
-  var re = /1337/;
-  var original = document.querySelector("#entity-name").textContent.trim() + re + origdescription[1].textContent.trim();
-  
+ // var re = ";.";
+  var originaltitle = orig[0].textContent.trim();
+  var originaldescription=orig[1].textContent.trim();
   document.getElementById("add-translations-button").click();
   //var elements = document.getElementsByClassName("tp-yt-paper-item  style-scope ytcp-text-menu style-scope ytcp-text-menu");
 
@@ -112,8 +154,12 @@ await delay(300);
     }
   }, 500); //добавляет языки перевода,нужно добавить чекбоксы языков привязанные к массиву
 
-  var objject = { Text: original };
+  var objject = { Text: originaltitle };
   var massiv = [objject];
+  var objject1 = { Text: originaldescription };
+  var massiv1 = [objject1];
+  var ttitle=JSON.stringify(massiv);
+  var ddescr=JSON.stringify(massiv1);
   // var pereveden;
 
   // function parsing(responce) {
@@ -132,10 +178,10 @@ await delay(300);
     method: 'POST',
     headers: {
       'content-type': 'application/json',
-      'X-RapidAPI-Key': 'b9767a063cmsh7eea5123c1a7280p1b49cbjsn047639fc0c09',
+      'X-RapidAPI-Key': `${apitoken}`,
       'X-RapidAPI-Host': 'microsoft-translator-text.p.rapidapi.com'
     },
-    body: JSON.stringify(massiv)
+    body: ttitle
   };
   
   const pereveden = codes.map(code => {
@@ -144,6 +190,25 @@ await delay(300);
     .then(response => response);
     console.log(responce);
     return responce;
+    
+  })
+  
+  const options1 = {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'X-RapidAPI-Key': `${apitoken}`,
+      'X-RapidAPI-Host': 'microsoft-translator-text.p.rapidapi.com'
+    },
+    body: ddescr
+  };
+  
+  const pereveden1 = codes.map(code => {
+    const responce1 = fetch(`https://microsoft-translator-text.p.rapidapi.com/translate?to%5B0%5D=${code}&api-version=3.0&includeAlignment=true&profanityAction=NoAction&textType=plain`, options1)
+    .then(response => response.json())
+    .then(response => response);
+    console.log(responce1);
+    return responce1;
     
   })
 
@@ -183,12 +248,12 @@ await delay(300);
     let descript = document.querySelectorAll("#translated-description > div > textarea");
     let public = document.querySelectorAll("#publish-button");
 
-    pereveden[i].then((value) => {title[i].value = truncate(value[0].translations[0].text.split(re)[0].replace(/[/]/g,''), 100)})
+    pereveden[i].then((value) => {title[i].value = truncate(value[0].translations[0].text, 100)})
 
     await delay(500);
     title[i].dispatchEvent(event);
     await delay(400);
-    pereveden[i].then((value) => {descript[i].value = value[0].translations[0].text.split(re)[1].replace(/[/]/g,'');})
+    pereveden1[i].then((value) => {descript[i].value = value[0].translations[0].text})
     await delay(500);
     descript[i].dispatchEvent(event);
     await delay(400);

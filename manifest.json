@@ -1,7 +1,7 @@
 {
-  "name": "AYE extension",
+  "name": "metaYTtranslator",
   "options_page": "options.html",
-  "description": "Testovaya xyina",
+  "description": "translate your youtube metadata",
   "version": "1.0",
   "manifest_version": 3,
   "background": {
